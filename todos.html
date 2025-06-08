@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos - Work Schedule</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 id="page-title">Todo Board</h1>
+            <div class="header-controls">
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <button class="nav-btn" data-page="schedule">
+                        <span class="nav-icon">📅</span>
+                        <span id="nav-schedule-text">Schedule</span>
+                    </button>
+                    <button class="nav-btn active" data-page="todos">
+                        <span class="nav-icon">✅</span>
+                        <span id="nav-todos-text">Todos</span>
+                    </button>
+                    <button class="nav-btn" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span id="nav-settings-text">Settings</span>
+                    </button>
+                </nav>
+                
+                <div class="language-selector">
+                    <button id="lang-et" class="lang-btn active" data-lang="et">🇪🇪 ET</button>
+                    <button id="lang-en" class="lang-btn" data-lang="en">🇬🇧 EN</button>
+                </div>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <main class="todos-section">
+                <div class="todos-header">
+                    <h2 id="todos-title">Project Board</h2>
+                    <button class="btn-primary" id="add-todo-btn">
+                        ➕ <span id="add-todo-text">Add Todo</span>
+                    </button>
+                </div>
+
+                <div class="kanban-board">
+                    <div class="kanban-column" data-status="todo">
+                        <div class="column-header">
+                            <h3 id="todo-column-title">To Do</h3>
+                            <span class="todo-count" id="todo-count">0</span>
+                        </div>
+                        <div class="column-content" data-column="todo">
+                            <!-- Todo cards will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="kanban-column" data-status="in-progress">
+                        <div class="column-header">
+                            <h3 id="progress-column-title">In Progress</h3>
+                            <span class="todo-count" id="progress-count">0</span>
+                        </div>
+                        <div class="column-content" data-column="in-progress">
+                            <!-- In Progress cards will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="kanban-column" data-status="done">
+                        <div class="column-header">
+                            <h3 id="done-column-title">Done</h3>
+                            <span class="todo-count" id="done-count">0</span>
+                        </div>
+                        <div class="column-content" data-column="done">
+                            <!-- Done cards will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Todo Modal -->
+    <div id="todo-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Todo</h3>
+                <button class="close-modal" id="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="todo-title" id="todo-title-label">Title</label>
+                    <input type="text" id="todo-title" class="form-input" placeholder="Enter todo title">
+                </div>
+                <div class="form-group">
+                    <label for="todo-description" id="todo-description-label">Description</label>
+                    <textarea id="todo-description" class="form-textarea" rows="4" placeholder="Enter detailed description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="todo-label" id="todo-label-label">Label</label>
+                    <select id="todo-label" class="form-select">
+                        <option value="feature" id="feature-label">Feature</option>
+                        <option value="bug" id="bug-label">Bug</option>
+                        <option value="improvement" id="improvement-label">Improvement</option>
+                        <option value="urgent" id="urgent-label">Urgent</option>
+                        <option value="design" id="design-label">Design</option>
+                        <option value="documentation" id="documentation-label">Documentation</option>
+                        <option value="testing" id="testing-label">Testing</option>
+                        <option value="maintenance" id="maintenance-label">Maintenance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="todo-priority" id="todo-priority-label">Priority</label>
+                    <select id="todo-priority" class="form-select">
+                        <option value="low" id="low-priority">Low</option>
+                        <option value="medium" id="medium-priority">Medium</option>
+                        <option value="high" id="high-priority">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="todo-due-date" id="todo-due-date-label">Due Date</label>
+                    <input type="date" id="todo-due-date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="todo-assignees" id="todo-assignee-label">Assigned To</label>
+                    <div class="assignee-selector">
+                        <div class="assignee-options">
+                            <label class="assignee-checkbox">
+                                <input type="checkbox" value="Mikey" class="assignee-input">
+                                <span class="assignee-name">Mikey</span>
+                            </label>
+                            <label class="assignee-checkbox">
+                                <input type="checkbox" value="Pringlessman" class="assignee-input">
+                                <span class="assignee-name">Pringlessman</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="todo-images" id="todo-images-label">Images/Screenshots</label>
+                    <div class="image-upload-section">
+                        <input type="file" id="todo-images" class="form-input file-input" multiple accept="image/*">
+                        <div class="image-preview-container" id="image-preview-container">
+                            <!-- Image previews will be added here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="todo-status" id="todo-status-label">Status</label>
+                    <select id="todo-status" class="form-select">
+                        <option value="todo" id="todo-status-option">To Do</option>
+                        <option value="in-progress" id="progress-status-option">In Progress</option>
+                        <option value="done" id="done-status-option">Done</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="save-todo-btn">
+                    💾 <span id="save-todo-text">Save Todo</span>
+                </button>
+                <button class="btn-secondary" id="cancel-todo-btn">
+                    ❌ <span id="cancel-todo-text">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Todo Detail Modal -->
+    <div id="todo-detail-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detail-todo-title">Todo Details</h3>
+                <div class="detail-actions">
+                    <button class="btn-small btn-secondary" id="edit-todo-btn">✏️</button>
+                    <button class="btn-small btn-danger" id="delete-todo-btn">🗑️</button>
+                    <button class="close-modal" id="close-detail-modal">×</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="todo-detail">
+                    <div class="detail-label" id="detail-label"></div>
+                    <h4 id="detail-title"></h4>
+                    <p id="detail-description"></p>
+                    <div class="detail-meta">
+                        <span id="detail-status"></span>
+                        <span id="detail-created"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <span id="loading-text">Loading...</span>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="error-toast hidden">
+        <span id="error-message"></span>
+        <button id="close-error" class="close-btn">×</button>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast" class="success-toast hidden">
+        <span id="success-message"></span>
+        <button id="close-success" class="close-btn">×</button>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="todos.js"></script>
+</body>
+</html>

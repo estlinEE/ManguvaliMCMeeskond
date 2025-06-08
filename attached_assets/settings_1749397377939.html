@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Work Schedule</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 id="page-title">Settings</h1>
+            <div class="header-controls">
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <button class="nav-btn" data-page="schedule">
+                        <span class="nav-icon">📅</span>
+                        <span id="nav-schedule-text">Schedule</span>
+                    </button>
+                    <button class="nav-btn" data-page="todos">
+                        <span class="nav-icon">✅</span>
+                        <span id="nav-todos-text">Todos</span>
+                    </button>
+                    <button class="nav-btn active" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span id="nav-settings-text">Settings</span>
+                    </button>
+                </nav>
+                
+                <div class="language-selector">
+                    <button id="lang-et" class="lang-btn active" data-lang="et">🇪🇪 ET</button>
+                    <button id="lang-en" class="lang-btn" data-lang="en">🇬🇧 EN</button>
+                </div>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <main class="settings-section">
+                <div class="settings-container">
+                    <div class="settings-header">
+                        <h2 id="settings-title">User Settings</h2>
+                        <p id="settings-subtitle">Customize your profile and preferences</p>
+                    </div>
+
+                    <div class="settings-content">
+                        <!-- Profile Section -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3 id="profile-section-title">Profile</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="profile-picture-section">
+                                    <div class="current-avatar">
+                                        <div class="avatar-preview" id="avatar-preview">
+                                            <img src="" alt="Profile" class="preview-img hidden" id="preview-img" />
+                                            <span class="preview-initial" id="preview-initial">?</span>
+                                        </div>
+                                        <div class="avatar-info">
+                                            <h4 id="current-member-name">Select Member</h4>
+                                            <p id="avatar-description">Upload a profile picture</p>
+                                        </div>
+                                    </div>
+                                    <div class="avatar-controls">
+                                        <input type="file" id="profile-picture-input" accept="image/*" class="hidden">
+                                        <button class="btn-secondary" id="upload-btn">
+                                            📷 <span id="upload-picture-text">Upload Picture</span>
+                                        </button>
+                                        <button class="btn-danger hidden" id="remove-picture-btn">
+                                            🗑️ <span id="remove-picture-text">Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="display-name" id="display-name-label">Display Name</label>
+                                    <input type="text" id="display-name" class="form-input" placeholder="Enter your name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="member-select" id="member-select-label">Select Member</label>
+                                    <select id="member-select" class="form-select">
+                                        <option value="Mikey">Mikey</option>
+                                        <option value="Pringlessman">Pringlessman</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preferences Section -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h3 id="preferences-section-title">Preferences</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="form-group">
+                                    <label for="theme-select" id="theme-select-label">Theme</label>
+                                    <div class="theme-selector">
+                                        <div class="theme-option" data-theme="light">
+                                            <div class="theme-preview light-preview"></div>
+                                            <span id="light-theme-text">Light</span>
+                                        </div>
+                                        <div class="theme-option" data-theme="dark">
+                                            <div class="theme-preview dark-preview"></div>
+                                            <span id="dark-theme-text">Dark</span>
+                                        </div>
+                                        <div class="theme-option" data-theme="strawberry">
+                                            <div class="theme-preview strawberry-preview"></div>
+                                            <span id="strawberry-theme-text">Strawberry</span>
+                                        </div>
+                                        <div class="theme-option" data-theme="sun">
+                                            <div class="theme-preview sun-preview"></div>
+                                            <span id="sun-theme-text">Sun</span>
+                                        </div>
+                                        <div class="theme-option" data-theme="lightsea">
+                                            <div class="theme-preview lightsea-preview"></div>
+                                            <span id="lightsea-theme-text">Light Sea</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="language-select" id="language-select-label">Language</label>
+                                    <select id="language-select" class="form-select">
+                                        <option value="en" id="english-option">English</option>
+                                        <option value="et" id="estonian-option">Estonian</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="settings-actions">
+                            <button class="btn-primary" id="save-settings-btn">
+                                💾 <span id="save-settings-text">Save Settings</span>
+                            </button>
+                            <button class="btn-secondary" id="cancel-settings-btn">
+                                ❌ <span id="cancel-settings-text">Cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <span id="loading-text">Loading...</span>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="error-toast hidden">
+        <span id="error-message"></span>
+        <button id="close-error" class="close-btn">×</button>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast" class="success-toast hidden">
+        <span id="success-message"></span>
+        <button id="close-success" class="close-btn">×</button>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>

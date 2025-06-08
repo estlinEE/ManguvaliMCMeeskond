@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Schedule</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 id="page-title">Work Schedule</h1>
+            <div class="header-controls">
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <button class="nav-btn active" data-page="schedule">
+                        <span class="nav-icon">📅</span>
+                        <span id="nav-schedule-text">Schedule</span>
+                    </button>
+                    <button class="nav-btn" data-page="todos">
+                        <span class="nav-icon">✅</span>
+                        <span id="nav-todos-text">Todos</span>
+                    </button>
+                    <button class="nav-btn" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span id="nav-settings-text">Settings</span>
+                    </button>
+                </nav>
+                
+                <div class="language-selector">
+                    <button id="lang-et" class="lang-btn active" data-lang="et">🇪🇪 ET</button>
+                    <button id="lang-en" class="lang-btn" data-lang="en">🇬🇧 EN</button>
+                </div>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <div class="team-members">
+                    <h3 id="team-title">Team Members</h3>
+                    <div class="member-list">
+                        <div class="member" data-member="Mikey">
+                            <div class="member-avatar" id="mikey-avatar">
+                                <img src="" alt="Mikey" class="avatar-img hidden" />
+                                <span class="avatar-initial">M</span>
+                            </div>
+                            <span class="member-name">Mikey</span>
+                        </div>
+                        <div class="member selected" data-member="Pringlessman">
+                            <div class="member-avatar" id="pringlessman-avatar">
+                                <img src="" alt="Pringlessman" class="avatar-img hidden" />
+                                <span class="avatar-initial">P</span>
+                            </div>
+                            <span class="member-name">Pringlessman</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-add">
+                    <h4 id="quick-add-title">Quick Add Today</h4>
+                    <div class="time-slots">
+                        <button class="slot-btn morning" data-slot="Morning">
+                            <span class="slot-icon">☀️</span>
+                            <span id="morning-text">Morning</span>
+                        </button>
+                        <button class="slot-btn afternoon" data-slot="Afternoon">
+                            <span class="slot-icon">🌤️</span>
+                            <span id="afternoon-text">Afternoon</span>
+                        </button>
+                        <button class="slot-btn evening" data-slot="Evening">
+                            <span class="slot-icon">🌆</span>
+                            <span id="evening-text">Evening</span>
+                        </button>
+                        <button class="slot-btn full-day" data-slot="Full Day">
+                            <span class="slot-icon">📅</span>
+                            <span id="full-day-text">Full Day</span>
+                        </button>
+                        <button class="slot-btn night" data-slot="Night">
+                            <span class="slot-icon">🌙</span>
+                            <span id="night-text">Night</span>
+                        </button>
+                    </div>
+                </div>
+
+
+
+                <div class="custom-add">
+                    <h4 id="custom-add-title">Custom Add</h4>
+                    <div class="custom-form">
+                        <select id="custom-day" class="custom-select">
+                            <option value="" id="select-day-option">Select Day</option>
+                        </select>
+                        <select id="custom-time" class="custom-select">
+                            <option value="Morning" id="morning-option">Morning</option>
+                            <option value="Afternoon" id="afternoon-option">Afternoon</option>
+                            <option value="Evening" id="evening-option">Evening</option>
+                            <option value="Full Day" id="full-day-option">Full Day</option>
+                            <option value="Night" id="night-option">Night</option>
+                        </select>
+                        <button class="custom-btn" id="custom-add-btn">
+                            <span id="add-button-text">Add</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Calendar -->
+            <main class="calendar-section">
+                <div class="calendar-header">
+                    <h2 id="calendar-title">Work Schedule</h2>
+                </div>
+
+                <div class="calendar-container">
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                    <div class="load-more-container">
+                        <button id="load-more-btn" class="load-more-btn">
+                            <span id="load-more-text">Load More Days</span>
+                            <span class="load-more-icon">↓</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <span id="loading-text">Loading...</span>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="error-toast hidden">
+        <span id="error-message"></span>
+        <button id="close-error" class="close-btn">×</button>
+    </div>
+
+    <script src="navigation.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Ensure DOM is fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure all elements are ready
+            setTimeout(() => {
+                if (typeof WorkScheduleApp !== 'undefined') {
+                    window.app = new WorkScheduleApp();
+                } else {
+                    console.error('WorkScheduleApp not defined');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
