@@ -108,56 +108,37 @@ class Settings {
         // Validate file type
         if (!file.type.startsWith('image/')) {
             this.showError('Please select an image file.');
-            event.target.value = ''; // Clear the input
+            event.target.value = '';
             return;
         }
 
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
             this.showError('File size must be less than 5MB.');
-            event.target.value = ''; // Clear the input
+            event.target.value = '';
             return;
         }
 
+        // Store the file for later upload
+        this.profilePictureFile = file;
+        
+        // Create preview using URL.createObjectURL instead of FileReader
         try {
-            this.profilePictureFile = file;
+            const objectUrl = URL.createObjectURL(file);
+            this.updateAvatarPreview(objectUrl);
             
-            // Show preview with improved error handling
-            const reader = new FileReader();
+            // Show remove button
+            document.getElementById('remove-picture-btn').classList.remove('hidden');
             
-            reader.onload = (e) => {
-                try {
-                    const result = e.target.result;
-                    if (!result || !result.startsWith('data:image/')) {
-                        this.showError('Failed to process the selected image.');
-                        return;
-                    }
-                    this.updateAvatarPreview(result);
-                    // Show remove button
-                    document.getElementById('remove-picture-btn').classList.remove('hidden');
-                } catch (error) {
-                    console.error('Error processing image preview:', error);
-                    this.showError('Failed to display image preview.');
-                }
-            };
-            
-            reader.onerror = (error) => {
-                console.error('FileReader error:', error);
-                this.showError('Failed to read the selected file. Please try again.');
-                event.target.value = ''; // Clear the input
-            };
-            
-            reader.onabort = () => {
-                this.showError('File reading was cancelled. Please try again.');
-                event.target.value = ''; // Clear the input
-            };
-            
-            reader.readAsDataURL(file);
+            // Clean up the object URL after a delay to prevent memory leaks
+            setTimeout(() => {
+                URL.revokeObjectURL(objectUrl);
+            }, 5000);
             
         } catch (error) {
-            console.error('Error handling file upload:', error);
-            this.showError('An error occurred while processing the file.');
-            event.target.value = ''; // Clear the input
+            console.error('Error creating preview:', error);
+            this.showError('Failed to display image preview.');
+            event.target.value = '';
         }
     }
 
