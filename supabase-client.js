@@ -334,40 +334,30 @@ class SupabaseClient {
             throw new Error('File size too large. Please select a file smaller than 5MB.');
         }
 
-        // Always use data URL for reliable storage
-        // This works consistently without requiring storage bucket setup
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
+        // Use URL.createObjectURL for preview and simple base64 conversion for storage
+        try {
+            // Convert file to base64 using a more reliable method
+            const arrayBuffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+            let binaryString = '';
             
-            reader.onload = (e) => {
-                try {
-                    const result = e.target.result;
-                    if (!result || !result.startsWith('data:image/')) {
-                        reject(new Error('Failed to process image file'));
-                        return;
-                    }
-                    console.log('Profile picture converted to data URL for storage');
-                    resolve(result);
-                } catch (error) {
-                    reject(new Error('Failed to process image: ' + error.message));
-                }
-            };
-            
-            reader.onerror = (error) => {
-                console.error('Error reading file:', error);
-                reject(new Error('Failed to read file. Please try again.'));
-            };
-            
-            reader.onabort = () => {
-                reject(new Error('File reading was aborted. Please try again.'));
-            };
-            
-            try {
-                reader.readAsDataURL(file);
-            } catch (error) {
-                reject(new Error('Failed to start reading file: ' + error.message));
+            // Convert to binary string in chunks to avoid call stack issues
+            const chunkSize = 1024;
+            for (let i = 0; i < uint8Array.length; i += chunkSize) {
+                const chunk = uint8Array.slice(i, i + chunkSize);
+                binaryString += String.fromCharCode.apply(null, chunk);
             }
-        });
+            
+            const base64 = btoa(binaryString);
+            const dataUrl = `data:${file.type};base64,${base64}`;
+            
+            console.log('Profile picture converted to data URL for storage');
+            return dataUrl;
+            
+        } catch (error) {
+            console.error('Error processing file:', error);
+            throw new Error('Failed to process the image file. Please try a different image.');
+        }
     }
 
     /**
