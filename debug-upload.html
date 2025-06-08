@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug File Upload</title>
+</head>
+<body>
+    <h1>Debug File Upload</h1>
+    <input type="file" id="test-file" accept="image/*">
+    <button id="test-btn">Test Upload</button>
+    <div id="result"></div>
+    <img id="preview" style="max-width: 200px; display: none;">
+
+    <script>
+        document.getElementById('test-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('test-file');
+            const file = fileInput.files[0];
+            const resultDiv = document.getElementById('result');
+            const preview = document.getElementById('preview');
+            
+            if (!file) {
+                resultDiv.textContent = 'No file selected';
+                return;
+            }
+            
+            console.log('File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: file.lastModified
+            });
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                console.log('FileReader onload triggered');
+                console.log('Result type:', typeof e.target.result);
+                console.log('Result length:', e.target.result ? e.target.result.length : 'null');
+                console.log('Result starts with data:image:', e.target.result ? e.target.result.startsWith('data:image/') : 'false');
+                
+                resultDiv.innerHTML = `
+                    <p>Success! File read completed.</p>
+                    <p>Type: ${file.type}</p>
+                    <p>Size: ${file.size} bytes</p>
+                    <p>Data URL length: ${e.target.result.length}</p>
+                `;
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            
+            reader.onerror = function(e) {
+                console.error('FileReader error:', e);
+                console.error('Error details:', {
+                    error: reader.error,
+                    readyState: reader.readyState
+                });
+                resultDiv.innerHTML = `<p style="color: red;">Error reading file: ${reader.error ? reader.error.message : 'Unknown error'}</p>`;
+            };
+            
+            reader.onabort = function(e) {
+                console.log('FileReader aborted');
+                resultDiv.innerHTML = `<p style="color: orange;">File reading was aborted</p>`;
+            };
+            
+            reader.onloadstart = function(e) {
+                console.log('FileReader loadstart');
+                resultDiv.innerHTML = `<p>Reading file...</p>`;
+            };
+            
+            reader.onprogress = function(e) {
+                console.log('FileReader progress:', e.loaded, '/', e.total);
+            };
+            
+            try {
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error starting FileReader:', error);
+                resultDiv.innerHTML = `<p style="color: red;">Failed to start reading: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

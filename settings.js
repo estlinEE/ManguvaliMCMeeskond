@@ -215,13 +215,21 @@ class Settings {
             // Upload profile picture if a new one was selected
             if (this.profilePictureFile) {
                 try {
+                    console.log('Starting profile picture upload for:', this.selectedMember);
+                    console.log('File details:', {
+                        name: this.profilePictureFile.name,
+                        size: this.profilePictureFile.size,
+                        type: this.profilePictureFile.type
+                    });
+                    
                     avatarUrl = await window.supabaseClient.uploadProfilePicture(
                         this.selectedMember,
                         this.profilePictureFile
                     );
+                    console.log('Profile picture uploaded successfully');
                 } catch (uploadError) {
                     console.error('Error uploading profile picture:', uploadError);
-                    this.showError('Failed to upload profile picture. Settings saved without image.');
+                    this.showError(`Failed to upload profile picture: ${uploadError.message || 'Unknown error'}`);
                     avatarUrl = this.currentProfile?.avatar_url; // Keep existing avatar
                 }
             }

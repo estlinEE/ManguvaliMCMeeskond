@@ -27,6 +27,9 @@ def main():
     # Change to the directory where the script is located
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
+    # Allow port reuse to handle restarts
+    socketserver.TCPServer.allow_reuse_address = True
+    
     # Create the server
     with socketserver.TCPServer(("0.0.0.0", PORT), MyHTTPRequestHandler) as httpd:
         print(f"Server running at http://0.0.0.0:{PORT}/")
