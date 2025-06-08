@@ -300,9 +300,13 @@ class SupabaseClient {
     async saveUserProfile(profileData) {
         await this.initialize();
 
+        // Use upsert with onConflict to handle duplicates properly
         const { data, error } = await this.supabase
             .from(this.profilesTable)
-            .upsert([profileData])
+            .upsert([profileData], { 
+                onConflict: 'member_name',
+                ignoreDuplicates: false 
+            })
             .select();
 
         if (error && error.code === '42P01') {
@@ -321,19 +325,48 @@ class SupabaseClient {
      * Upload profile picture to Supabase Storage or fallback to data URL
      */
     async uploadProfilePicture(memberName, file) {
+        // Validate file first
+        if (!file || !file.type.startsWith('image/')) {
+            throw new Error('Invalid file type. Please select an image file.');
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error('File size too large. Please select a file smaller than 5MB.');
+        }
+
         // Always use data URL for reliable storage
         // This works consistently without requiring storage bucket setup
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
+            
             reader.onload = (e) => {
-                console.log('Profile picture converted to data URL for storage');
-                resolve(e.target.result);
+                try {
+                    const result = e.target.result;
+                    if (!result || !result.startsWith('data:image/')) {
+                        reject(new Error('Failed to process image file'));
+                        return;
+                    }
+                    console.log('Profile picture converted to data URL for storage');
+                    resolve(result);
+                } catch (error) {
+                    reject(new Error('Failed to process image: ' + error.message));
+                }
             };
+            
             reader.onerror = (error) => {
                 console.error('Error reading file:', error);
-                reject(error);
+                reject(new Error('Failed to read file. Please try again.'));
             };
-            reader.readAsDataURL(file);
+            
+            reader.onabort = () => {
+                reject(new Error('File reading was aborted. Please try again.'));
+            };
+            
+            try {
+                reader.readAsDataURL(file);
+            } catch (error) {
+                reject(new Error('Failed to start reading file: ' + error.message));
+            }
         });
     }
 
